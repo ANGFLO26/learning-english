@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+/* Navigation Bar Styles */
+.navbar {
+    background: linear-gradient(135deg, #4e54c8, #8f94fb) !important;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.navbar-brand {
+    color: white !important;
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.nav-link {
+    color: rgba(255,255,255,0.9) !important;
+    font-weight: 500;
+    padding: 0.5rem 1rem !important;
+    margin: 0 0.2rem;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-link:hover {
+    color: white !important;
+    background: rgba(255,255,255,0.1);
+    transform: translateY(-1px);
+}
+
+.navbar-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Add animation for active link */
+.nav-link.active {
+    background: rgba(255,255,255,0.2);
+    color: white !important;
+}
+
+/* Logout button special styling */
+.nav-link[href*="logout"] {
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 0.5rem 1.5rem !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-link[href*="logout"] i {
+    font-size: 1.1em;
+    margin-right: 0.2rem;
+}
+
+.nav-link[href*="logout"]:hover {
+    background: rgba(255,255,255,0.2);
+    border-color: transparent;
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        padding: 1rem;
+    }
+    
+    .navbar-nav {
+        margin-top: 1rem;
+        gap: 0.8rem;
+    }
+    
+    .nav-link {
+        text-align: center;
+        justify-content: center;
+    }
+}
+</style>
+
+<div class="container mt-4">
+    <h2>{{ topic.name }}</h2>
+    <p>{{ topic.description }}</p>
+
+    <!-- Learning Mode Selection -->
+    <div class="mb-4">
+        <h4>Select Learning Mode:</h4>
+        <div class="btn-group" role="group">
+            <a href="{{ url_for('learn', topic_id=topic.id, mode='vn_to_en') }}" 
+               class="btn btn-primary {% if mode == 'vn_to_en' %}active{% endif %}">
+                Listen Vietnamese → Enter English
+            </a>
+            <a href="{{ url_for('learn', topic_id=topic.id, mode='en_to_vn') }}" 
+               class="btn btn-primary {% if mode == 'en_to_vn' %}active{% endif %}">
+                Listen English → Enter Vietnamese
+            </a>
+            <a href="{{ url_for('learn', topic_id=topic.id, mode='phonetic') }}" 
+               class="btn btn-primary {% if mode == 'phonetic' %}active{% endif %}">
+                View Transcription → Enter Both
+            </a>
+        </div>
+    </div>
+
+    <!-- Learning Cards -->
+    <div class="row" id="vocabulary-cards">
+        {% for vocab in vocabularies %}
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    {% if mode == 'vn_to_en' %}
+                        <div class="text-center mb-3">
+                            <button class="btn btn-primary play-audio" data-vocab-id="{{ vocab.id }}" data-language="vn">
+                                <i class="fas fa-volume-up"></i> Play Vietnamese
+                            </button>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control mb-2 answer-input" placeholder="Enter English word">
+                            <button class="btn btn-success check-answer" data-correct="{{ vocab.word }}">Check</button>
+                        </div>
+                    {% elif mode == 'en_to_vn' %}
+                        <div class="text-center mb-3">
+                            <button class="btn btn-primary play-audio" data-vocab-id="{{ vocab.id }}" data-language="en">
+                                <i class="fas fa-volume-up"></i> Play English
+                            </button>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control mb-2 answer-input" placeholder="Enter Vietnamese word">
+                            <button class="btn btn-success check-answer" data-correct="{{ vocab.meaning }}">Check</button>
+                        </div>
+                    {% else %}
+                        <div class="text-center mb-3">
+                            <p class="card-text">Phonetic: {{ vocab.phonetic }}</p>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control mb-2 answer-input-en" placeholder="Enter English word">
+                            <input type="text" class="form-control mb-2 answer-input-vn" placeholder="Enter Vietnamese word">
+                            <button class="btn btn-success check-both-answers" 
+                                    data-correct-en="{{ vocab.word }}"
+                                    data-correct-vn="{{ vocab.meaning }}">Check</button>
+                        </div>
+                    {% endif %}
+                    <div class="feedback mt-2"></div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Play audio function
+    document.querySelectorAll('.play-audio').forEach(button => {
+        button.addEventListener('click', async function() {
+            // Disable the button while playing
+            this.disabled = true;
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Playing...';
+
+            try {
+                const vocabId = this.dataset.vocabId;
+                const language = this.dataset.language;
+                const response = await fetch(`/play_audio/${vocabId}/${language}`);
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error('Failed to play audio');
+                }
+            } catch (error) {
+                console.error('Error playing audio:', error);
+                alert('Error playing audio. Please try again.');
+            } finally {
+                // Re-enable the button and restore original text
+                this.disabled = false;
+                this.innerHTML = originalText;
+            }
+        });
+    });
+
+    // Check single answer
+    document.querySelectorAll('.check-answer').forEach(button => {
+        button.addEventListener('click', function() {
+            const input = this.parentElement.querySelector('.answer-input');
+            const correct = this.dataset.correct;
+            const feedback = this.closest('.card-body').querySelector('.feedback');
+            
+            if (input.value.toLowerCase().trim() === correct.toLowerCase()) {
+                feedback.textContent = 'Correct!';
+                feedback.className = 'feedback mt-2 text-success';
+            } else {
+                feedback.textContent = `Incorrect. The correct answer is: ${correct}`;
+                feedback.className = 'feedback mt-2 text-danger';
+            }
+        });
+    });
+
+    // Check both answers
+    document.querySelectorAll('.check-both-answers').forEach(button => {
+        button.addEventListener('click', function() {
+            const inputEn = this.parentElement.querySelector('.answer-input-en');
+            const inputVn = this.parentElement.querySelector('.answer-input-vn');
+            const correctEn = this.dataset.correctEn;
+            const correctVn = this.dataset.correctVn;
+            const feedback = this.closest('.card-body').querySelector('.feedback');
+            
+            const isEnCorrect = inputEn.value.toLowerCase().trim() === correctEn.toLowerCase();
+            const isVnCorrect = inputVn.value.toLowerCase().trim() === correctVn.toLowerCase();
+            
+            if (isEnCorrect && isVnCorrect) {
+                feedback.textContent = 'Both answers are correct!';
+                feedback.className = 'feedback mt-2 text-success';
+            } else {
+                let message = 'Incorrect.\n';
+                if (!isEnCorrect) message += `Correct English: ${correctEn}\n`;
+                if (!isVnCorrect) message += `Correct Vietnamese: ${correctVn}`;
+                feedback.textContent = message;
+                feedback.className = 'feedback mt-2 text-danger';
+            }
+        });
+    });
+});
+</script>
+
+<style>
+.feedback {
+    font-weight: bold;
+    white-space: pre-line;
+}
+
+.card {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.btn-group {
+    margin-bottom: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+</style>
+{% endblock %} 
