@@ -1,0 +1,317 @@
+{% extends "base.html" %}
+
+{% block title %}Vocabulary Topics{% endblock %}
+
+{% block content %}
+<style>
+    .topics-container {
+        padding: 2rem 0;
+    }
+    
+    .page-header {
+        margin-bottom: 2rem;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 1rem;
+    }
+    
+    .topics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        padding: 1rem 0;
+    }
+    
+    .topic-card {
+        position: relative;
+        border-radius: 15px;
+        overflow: hidden;
+        background: white;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .topic-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .topic-image {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+    }
+    
+    .topic-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    .topic-card:hover .topic-image img {
+        transform: scale(1.1);
+    }
+    
+    .topic-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.6));
+    }
+    
+    .completion-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: rgba(255,255,255,0.9);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        z-index: 1;
+    }
+    
+    .completion-badge.completed {
+        background: #28a745;
+        color: white;
+    }
+    
+    .completion-badge.in-progress {
+        background: #ffc107;
+        color: #000;
+    }
+    
+    .completion-badge.not-started {
+        background: rgba(255,255,255,0.9);
+        color: #6c757d;
+    }
+    
+    .topic-content {
+        padding: 1.5rem;
+    }
+    
+    .topic-header {
+        margin-bottom: 1rem;
+    }
+    
+    .topic-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #2c3e50;
+    }
+    
+    .topic-description {
+        color: #6c757d;
+        margin-bottom: 1rem;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+    
+    .topic-stats {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 10px;
+    }
+    
+    .topic-stat {
+        flex: 1;
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #4e54c8;
+        margin-bottom: 0.2rem;
+    }
+    
+    .stat-label {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+    
+    .topic-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    
+    .action-button {
+        padding: 0.8rem;
+        border-radius: 8px;
+        font-weight: 500;
+        text-align: center;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .learn-button {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        color: white;
+        border: none;
+    }
+    
+    .learn-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(78, 84, 200, 0.3);
+        color: white;
+    }
+    
+    .test-button {
+        background: white;
+        color: #4e54c8;
+        border: 2px solid #4e54c8;
+    }
+    
+    .test-button:hover {
+        background: rgba(78, 84, 200, 0.1);
+        color: #4e54c8;
+        transform: translateY(-2px);
+    }
+    
+    .progress-bar {
+        height: 6px;
+        background-color: #e9ecef;
+        border-radius: 3px;
+        overflow: hidden;
+        margin-top: 0.5rem;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #4e54c8, #8f94fb);
+        border-radius: 3px;
+        transition: width 0.3s ease;
+    }
+    
+    @media (max-width: 768px) {
+        .topics-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .topic-stats {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .topic-actions {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="container topics-container">
+    <div class="page-header">
+        <h1>Vocabulary Topics</h1>
+        <p class="lead">Choose a topic to start learning new vocabulary</p>
+    </div>
+
+    <div class="topics-grid">
+        {% for topic in topics %}
+        {% set progress = topic_progress[topic.id] %}
+        <div class="topic-card">
+            <div class="topic-image">
+                {% set topic_name = topic.name.lower() %}
+                {% if 'động vật' in topic_name or 'animal' in topic_name %}
+                    <img src="{{ url_for('static', filename='images/topics/animals.jpg') }}" alt="Animals">
+                {% elif 'ẩm thực' in topic_name or 'food' in topic_name %}
+                    <img src="{{ url_for('static', filename='images/topics/food.jpg') }}" alt="Food">
+                {% elif 'công nghệ' in topic_name or 'tech' in topic_name %}
+                    <img src="{{ url_for('static', filename='images/topics/technology.jpg') }}" alt="Technology">
+                {% elif 'du lịch' in topic_name or 'travel' in topic_name %}
+                    <img src="{{ url_for('static', filename='images/topics/travel.jpg') }}" alt="Travel">
+                {% elif 'thể thao' in topic_name or 'sport' in topic_name %}
+                    <img src="{{ url_for('static', filename='images/topics/sports.jpg') }}" alt="Sports">
+                {% elif 'gia đình' in topic_name or 'family' in topic_name %}
+                    <img src="{{ url_for('static', filename='images/topics/family.jpg') }}" alt="Family">
+                {% elif 'sức khỏe' in topic_name or 'health' in topic_name %}
+                    <img src="{{ url_for('static', filename='images/topics/healthy.jpeg') }}" alt="Health">
+                {% elif 'giáo dục' in topic_name or 'education' in topic_name %}
+                    <img src="{{ url_for('static', filename='images/topics/education.jpg') }}" alt="Education">
+                {% elif 'công việc' in topic_name or 'nghề nghiệp' in topic_name or 'job' in topic_name %}
+                    <img src="{{ url_for('static', filename='images/topics/job.jpg') }}" alt="Job">
+                {% elif 'thiên nhiên' in topic_name or 'nature' in topic_name %}
+                    <img src="{{ url_for('static', filename='images/topics/nature.jpg') }}" alt="Nature">
+                {% elif 'màu sắc' in topic_name or 'color' in topic_name %}
+                    <img src="{{ url_for('static', filename='images/topics/color.jpg') }}" alt="Color">
+                {% elif 'cảm xúc' in topic_name or 'feeling' in topic_name %}
+                    <img src="{{ url_for('static', filename='images/topics/feeling.jpg') }}" alt="Feeling">
+                {% elif 'thời trang' in topic_name or 'fashion' in topic_name %}
+                    <img src="{{ url_for('static', filename='images/topics/fashion.webp') }}" alt="Fashion">
+                {% elif 'giao thông' in topic_name or 'traffic' in topic_name %}
+                    <img src="{{ url_for('static', filename='images/topics/traffic.jpeg') }}" alt="Traffic">
+                {% elif 'thời gian' in topic_name or 'time' in topic_name %}
+                    <img src="{{ url_for('static', filename='images/topics/time.png') }}" alt="Time">
+                {% elif 'nhà cửa' in topic_name or 'house' in topic_name %}
+                    <img src="{{ url_for('static', filename='images/topics/houses.jpg') }}" alt="Houses">
+                {% elif 'văn hóa' in topic_name or 'culture' in topic_name %}
+                    <img src="{{ url_for('static', filename='images/topics/cultures.png') }}" alt="Culture">
+                {% elif 'âm nhạc' in topic_name or 'music' in topic_name %}
+                    <img src="{{ url_for('static', filename='images/topics/music.png') }}" alt="Music">
+                {% elif 'phim ảnh' in topic_name or 'film' in topic_name %}
+                    <img src="{{ url_for('static', filename='images/topics/films.jpg') }}" alt="Films">
+                {% else %}
+                    <img src="{{ url_for('static', filename='images/topics/default.jpg') }}" alt="Learning">
+                {% endif %}
+                <div class="topic-overlay"></div>
+                
+                <div class="completion-badge {% if progress.completed %}completed{% elif progress.attempts > 0 %}in-progress{% else %}not-started{% endif %}">
+                    {% if progress.completed %}
+                        <i class="bi bi-check-circle-fill"></i> Completed
+                    {% elif progress.attempts > 0 %}
+                        <i class="bi bi-clock-history"></i> In Progress
+                    {% else %}
+                        <i class="bi bi-circle"></i> Not Started
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="topic-content">
+                <div class="topic-header">
+                    <h3 class="topic-title">{{ topic.name }}</h3>
+                    <p class="topic-description">{{ topic.description }}</p>
+                </div>
+                
+                <div class="topic-stats">
+                    <div class="topic-stat">
+                        <div class="stat-value">{{ progress.total_vocab }}</div>
+                        <div class="stat-label">Words</div>
+                    </div>
+                    <div class="topic-stat">
+                        <div class="stat-value">{{ progress.highest_score }}%</div>
+                        <div class="stat-label">Best Score</div>
+                    </div>
+                    <div class="topic-stat">
+                        <div class="stat-value">{{ progress.attempts }}</div>
+                        <div class="stat-label">Attempts</div>
+                    </div>
+                </div>
+                
+                <div class="topic-actions">
+                    <a href="{{ url_for('learn', topic_id=topic.id) }}" class="action-button learn-button">
+                        <i class="bi bi-book"></i>
+                        Learn
+                    </a>
+                    <a href="{{ url_for('test', topic_id=topic.id) }}" class="action-button test-button">
+                        <i class="bi bi-pencil-square"></i>
+                        Test
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

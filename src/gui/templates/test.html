@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% block title %}Vocabulary Test{% endblock %}
+
 {% block content %}
 <style>
 /* Navigation Bar Styles */
@@ -80,6 +82,32 @@
         justify-content: center;
     }
 }
+
+.progress-bar-container {
+    height: 25px;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 0;
+}
+
+.progress-bar {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    transition: width 0.5s ease;
+}
+
+.progress-bar-success {
+    background: linear-gradient(90deg, #28a745, #34ce57);
+}
+
+.progress-bar-danger {
+    background: linear-gradient(90deg, #dc3545, #e4606d);
+}
 </style>
 
 <div class="row">
@@ -145,16 +173,14 @@ document.getElementById('test-form').addEventListener('submit', function(e) {
     })
     .then(response => response.json())
     .then(data => {
-        if (data.success) {
-            alert(`Your score: ${data.score.toFixed(1)}%\n${data.passed ? 'Congratulations! You passed!' : 'Keep practicing!'}`);
-            window.location.href = data.redirect_url;
-        } else {
-            alert('An error occurred. Please try again.');
-        }
+        const message = `Your score: ${data.score.toFixed(1)}%\n${data.passed ? 'Congratulations! You passed!' : 'Keep practicing!'}`;
+        alert(message);
+        // Redirect to history page after test completion
+        window.location.href = '/history';
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('An error occurred. Please try again.');
+        alert('An error occurred while submitting your test. Please try again.');
     });
 });
 </script>

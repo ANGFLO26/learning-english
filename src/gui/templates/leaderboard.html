@@ -1,0 +1,344 @@
+{% extends "base.html" %}
+
+{% block title %}Leaderboard{% endblock %}
+
+{% block content %}
+<style>
+    .leaderboard-container {
+        padding: 2rem 0;
+    }
+    
+    .page-header {
+        margin-bottom: 2rem;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 1rem;
+    }
+    
+    .filter-section {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .filter-section h2 {
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+    }
+    
+    .filter-form {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+    
+    .filter-select {
+        flex: 1;
+        border: none;
+        border-radius: 5px;
+        padding: 0.8rem;
+        font-size: 1rem;
+        background-color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .filter-button {
+        background-color: white;
+        color: #4e54c8;
+        border: none;
+        border-radius: 5px;
+        padding: 0.8rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .filter-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        background-color: white;
+        color: #4e54c8;
+    }
+    
+    .leaderboard-table {
+        background-color: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        margin-bottom: 2rem;
+    }
+    
+    .leaderboard-table thead {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        color: white;
+    }
+    
+    .leaderboard-table th {
+        font-weight: 600;
+        padding: 1rem;
+        border: none;
+    }
+    
+    .leaderboard-table td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+    
+    .rank-cell {
+        font-weight: bold;
+        font-size: 1.2rem;
+        text-align: center;
+    }
+    
+    .rank-1 {
+        color: #ffd700;
+    }
+    
+    .rank-2 {
+        color: #c0c0c0;
+    }
+    
+    .rank-3 {
+        color: #cd7f32;
+    }
+    
+    .user-cell {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+    
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+    
+    .score-cell {
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+    
+    .score-bar {
+        height: 25px;
+        background-color: #f0f0f0;
+        border-radius: 5px;
+        overflow: hidden;
+        margin-top: 0.5rem;
+    }
+    
+    .score-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #4e54c8, #8f94fb);
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        transition: width 0.5s ease;
+    }
+    
+    .current-user-row {
+        background-color: rgba(78, 84, 200, 0.1);
+    }
+    
+    .stats-section {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .stats-section h2 {
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .stat-card {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 1rem;
+        backdrop-filter: blur(5px);
+    }
+    
+    .stat-card h3 {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+        opacity: 0.9;
+    }
+    
+    .stat-card p {
+        font-size: 1.8rem;
+        font-weight: bold;
+        margin: 0;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #6c757d;
+    }
+    
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    .empty-state h4 {
+        margin-bottom: 0.5rem;
+    }
+    
+    .empty-state p {
+        margin-bottom: 1.5rem;
+    }
+    
+    @media (max-width: 768px) {
+        .filter-form {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .filter-button {
+            width: 100%;
+        }
+        
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .leaderboard-table th, 
+        .leaderboard-table td {
+            padding: 0.8rem;
+        }
+        
+        .user-cell {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.3rem;
+        }
+    }
+</style>
+
+<div class="container leaderboard-container">
+    <div class="page-header">
+        <h1>Leaderboard</h1>
+        <p class="lead">See how you rank against other learners</p>
+    </div>
+    
+    <!-- Topic Filter -->
+    <div class="filter-section">
+        <h2>Filter by Topic</h2>
+        <form method="GET" class="filter-form">
+            <select name="topic_id" class="filter-select">
+                <option value="">All Topics</option>
+                {% for topic in topics %}
+                <option value="{{ topic.id }}" {% if selected_topic_id == topic.id %}selected{% endif %}>
+                    {{ topic.name }}
+                </option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="filter-button">Apply Filter</button>
+        </form>
+    </div>
+
+    <!-- Topic Statistics -->
+    {% if selected_topic_id and statistics %}
+    <div class="stats-section">
+        <h2>Topic Statistics</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Average Score</h3>
+                <p>{{ statistics.average_score }}%</p>
+            </div>
+            <div class="stat-card">
+                <h3>Pass Rate</h3>
+                <p>{{ statistics.pass_rate }}%</p>
+            </div>
+            <div class="stat-card">
+                <h3>Total Attempts</h3>
+                <p>{{ statistics.total_attempts }}</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Leaderboard Table -->
+    {% if leaderboard %}
+    <div class="leaderboard-table">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>User</th>
+                    <th>Topic</th>
+                    <th>Score</th>
+                    <th>Last Updated</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set ns = namespace(current_rank=1, previous_score=None) %}
+                
+                {% for entry in leaderboard %}
+                    {% if ns.previous_score is none %}
+                        {% set ns.current_rank = 1 %}
+                    {% elif ns.previous_score != entry.highest_score %}
+                        {% set ns.current_rank = ns.current_rank + 1 %}
+                    {% endif %}
+                    
+                    <tr {% if current_user and entry.user_id == current_user.id %}class="current-user-row"{% endif %}>
+                        <td class="rank-cell rank-{{ ns.current_rank if ns.current_rank <= 3 else '' }}">
+                            {% if ns.current_rank <= 3 %}
+                                <i class="bi bi-trophy-fill"></i>
+                            {% endif %}
+                            {{ ns.current_rank }}
+                        </td>
+                        <td>
+                            <div class="user-cell">
+                                <div class="user-avatar">
+                                    {{ entry.user.name[0] }}
+                                </div>
+                                <div>{{ entry.user.name }}</div>
+                            </div>
+                        </td>
+                        <td>{{ topic_names[entry.topic_id] }}</td>
+                        <td class="score-cell">
+                            <div class="score-bar">
+                                <div class="score-fill" style="width: {{ entry.highest_score }}%">
+                                    {{ entry.highest_score }}%
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ entry.last_updated.strftime('%Y-%m-%d %H:%M') if entry.last_updated else 'N/A' }}</td>
+                    </tr>
+                    
+                    {% set ns.previous_score = entry.highest_score %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="bi bi-trophy"></i>
+        <h4>No entries found</h4>
+        <p>There are no leaderboard entries for the selected filter.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 

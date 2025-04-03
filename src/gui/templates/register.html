@@ -65,7 +65,7 @@
 /* Register Form Styles */
 .register-container {
     max-width: 400px;
-    margin: 2rem auto;
+    margin: 4.5rem auto 2rem;
     padding: 2rem;
     background: white;
     border-radius: 10px;
@@ -118,7 +118,57 @@
 .login-link a:hover {
     text-decoration: underline;
 }
+
+.home-button {
+    position: absolute;
+    top: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    color: #4e54c8;
+    padding: 0.5rem 1.2rem;
+    border-radius: 6px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 100;
+}
+
+.home-button:hover {
+    transform: translateX(-50%) translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    color: #4e54c8;
+    text-decoration: none;
+}
+
+.home-button i {
+    font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+    .home-button {
+        top: 0.8rem;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 0.4rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .home-button:hover {
+        transform: translateX(-50%) translateY(-2px);
+    }
+}
 </style>
+
+<a href="{{ url_for('index') }}" class="home-button">
+    <i class="bi bi-house-door"></i>
+    Home
+</a>
 
 <div class="container">
     <div class="register-container">

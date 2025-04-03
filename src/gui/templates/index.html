@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+/* Navigation Bar Styles */
+.navbar {
+    background: linear-gradient(135deg, #4e54c8, #8f94fb) !important;
+    padding: 1rem 2rem;
+    box-shadow: 0 4px 20px rgba(78, 84, 200, 0.15);
+}
+
+.navbar-brand {
+    color: white !important;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.nav-link {
+    color: rgba(255,255,255,0.95) !important;
+    font-weight: 500;
+    padding: 0.6rem 1.2rem !important;
+    margin: 0 0.3rem;
+    border-radius: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-link:hover {
+    color: white !important;
+    background: rgba(255,255,255,0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.navbar-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.nav-link.active {
+    background: rgba(255,255,255,0.2);
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Hero Section Styles */
+.hero-section {
+    background: linear-gradient(135deg, #4e54c8, #8f94fb);
+    color: white;
+    padding: 5rem 2rem;
+    text-align: center;
+    border-radius: 20px;
+    margin: 2rem auto;
+    max-width: 900px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(78, 84, 200, 0.25);
+    animation: fadeInUp 0.8s ease-out;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><path fill="%23FFFFFF" fill-opacity="0.05" d="M45,-78.1C58.3,-71.3,69.1,-58.9,77.8,-44.7C86.5,-30.4,93.2,-14.2,92.4,1.5C91.5,17.2,83.1,32.4,73.5,46.5C63.8,60.7,52.8,73.8,38.5,79.6C24.2,85.4,6.6,83.9,-10.7,81.1C-28,78.2,-45,74,-57.6,64.1C-70.2,54.2,-78.3,38.7,-83.7,22.1C-89.1,5.4,-91.7,-12.4,-87.3,-28.2C-82.9,-44,-71.4,-57.8,-57,-65.7C-42.6,-73.6,-25.3,-75.7,-8.9,-72.5C7.5,-69.4,31.7,-61,45,-78.1Z" transform="translate(100 100)"/></svg>') center/cover;
+    opacity: 0.1;
+    animation: rotate 60s linear infinite;
+}
+
+.hero-section h1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    letter-spacing: -0.5px;
+}
+
+.hero-section p {
+    font-size: 1.3rem;
+    opacity: 0.95;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* Features Section */
+.features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2.5rem;
+    margin: 5rem auto;
+    max-width: 1200px;
+    padding: 0 1.5rem;
+}
+
+.feature-item {
+    text-align: center;
+    padding: 2.5rem 2rem;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    animation: fadeInUp 0.8s ease-out;
+    animation-fill-mode: both;
+}
+
+.feature-item:nth-child(1) { animation-delay: 0.2s; }
+.feature-item:nth-child(2) { animation-delay: 0.4s; }
+.feature-item:nth-child(3) { animation-delay: 0.6s; }
+
+.feature-item:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 30px rgba(78, 84, 200, 0.15);
+}
+
+.feature-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #4e54c8, #8f94fb);
+    transform: scaleX(0);
+    transition: transform 0.4s ease;
+}
+
+.feature-item:hover::before {
+    transform: scaleX(1);
+}
+
+.feature-item i {
+    font-size: 3rem;
+    color: #4e54c8;
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s ease;
+}
+
+.feature-item:hover i {
+    transform: scale(1.1);
+}
+
+.feature-item h3 {
+    color: #2d3748;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.feature-item p {
+    color: #4a5568;
+    line-height: 1.6;
+    font-size: 1.1rem;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        padding: 1rem;
+    }
+    
+    .navbar-nav {
+        margin-top: 1rem;
+        gap: 0.8rem;
+    }
+    
+    .nav-link {
+        text-align: center;
+        justify-content: center;
+    }
+
+    .hero-section {
+        padding: 4rem 1.5rem;
+        margin: 1.5rem auto;
+    }
+
+    .hero-section h1 {
+        font-size: 2.5rem;
+    }
+
+    .hero-section p {
+        font-size: 1.1rem;
+    }
+
+    .features {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        margin: 3rem auto;
+        padding: 0 1rem;
+    }
+
+    .feature-item {
+        padding: 2rem 1.5rem;
+    }
+}
+</style>
+
+<div class="container">
+    <div class="hero-section">
+        <h1>Welcome to Vocabulary Learning</h1>
+        <p>Embark on an interactive journey to master new languages through our engaging and effective learning platform</p>
+    </div>
+
+    <div class="features">
+        <div class="feature-item">
+            <i class="bi bi-collection"></i>
+            <h3>Rich Topic Library</h3>
+            <p>Explore diverse categories and learn vocabulary that matters to you, all at your own comfortable pace</p>
+        </div>
+        <div class="feature-item">
+            <i class="bi bi-volume-up"></i>
+            <h3>Interactive Audio</h3>
+            <p>Perfect your pronunciation with crystal-clear audio support and real-time feedback</p>
+        </div>
+        <div class="feature-item">
+            <i class="bi bi-graph-up"></i>
+            <h3>Smart Progress Tracking</h3>
+            <p>Visualize your learning journey with detailed analytics and achievement milestones</p>
+        </div>
+    </div>
+</div>
+{% endblock %} 

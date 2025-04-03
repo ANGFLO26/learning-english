@@ -1,0 +1,441 @@
+{% extends "base.html" %}
+
+{% block title %}Learning History{% endblock %}
+
+{% block content %}
+<style>
+    .history-container {
+        padding: 2rem 0;
+    }
+    
+    .page-header {
+        margin-bottom: 2rem;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 1rem;
+    }
+    
+    .progress-summary {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .progress-summary h2 {
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+    }
+    
+    .progress-stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+    
+    .stat-card {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 1rem;
+        flex: 1;
+        min-width: 200px;
+        backdrop-filter: blur(5px);
+    }
+    
+    .stat-card h3 {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+        opacity: 0.9;
+    }
+    
+    .stat-card p {
+        font-size: 1.8rem;
+        font-weight: bold;
+        margin: 0;
+    }
+    
+    .topic-card {
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        transition: transform 0.3s ease;
+        display: none;
+    }
+    
+    .topic-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .topic-card.show {
+        display: block;
+    }
+    
+    .topic-header {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        color: white;
+        padding: 1rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .topic-header h3 {
+        margin: 0;
+        font-size: 1.4rem;
+    }
+    
+    .topic-stats {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .topic-stat {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+    }
+    
+    .progress-table {
+        margin: 0;
+    }
+    
+    .progress-table th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+    }
+    
+    .progress-bar-container {
+        height: 25px;
+        background-color: #f0f0f0;
+        border-radius: 5px;
+        overflow: hidden;
+        margin: 0;
+    }
+    
+    .progress-bar {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        transition: width 0.5s ease;
+    }
+    
+    .progress-bar-success {
+        background: linear-gradient(90deg, #28a745, #34ce57);
+    }
+    
+    .progress-bar-danger {
+        background: linear-gradient(90deg, #dc3545, #e4606d);
+    }
+    
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 500;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #6c757d;
+    }
+    
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    .empty-state h4 {
+        margin-bottom: 0.5rem;
+    }
+    
+    .empty-state p {
+        margin-bottom: 1.5rem;
+    }
+    
+    .btn-start-learning {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 5px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-start-learning:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        color: white;
+    }
+    
+    @media (max-width: 768px) {
+        .progress-stats {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .stat-card {
+            min-width: 100%;
+        }
+        
+        .topic-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+        
+        .topic-stats {
+            width: 100%;
+            justify-content: space-between;
+        }
+    }
+    
+    .filter-section {
+        background: #6c5ce7;
+        padding: 1.5rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 10px rgba(108, 92, 231, 0.2);
+        display: flex;
+        align-items: flex-end;
+        gap: 1rem;
+    }
+    
+    .filter-section label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: white;
+        font-size: 1.2rem;
+    }
+    
+    .filter-group {
+        flex: 1;
+    }
+    
+    .filter-section select {
+        width: 100%;
+        padding: 0.75rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        color: #495057;
+        background-color: white;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .filter-section select:focus {
+        outline: none;
+        box-shadow: 0 2px 10px rgba(255, 255, 255, 0.3);
+    }
+    
+    .apply-filter-btn {
+        background: white;
+        color: #6c5ce7;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .apply-filter-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+</style>
+
+<div class="container history-container">
+    <div class="page-header">
+        <h1>Learning History</h1>
+        <p class="lead">Track your progress and achievements across all topics</p>
+    </div>
+
+    <!-- Topic Filter -->
+    <div class="filter-section">
+        <div class="filter-group">
+            <label for="topicFilter">
+                Filter by Topic
+            </label>
+            <select id="topicFilter" class="form-select">
+                <option value="all">All Topics</option>
+                {% for topic in topics|sort(attribute='name') %}
+                <option value="{{ topic.id }}">{{ topic.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button class="apply-filter-btn" id="applyFilter">Apply Filter</button>
+    </div>
+
+    <!-- Progress Summary -->
+    <div class="progress-summary">
+        <h2>Overall Progress</h2>
+        <div class="progress-stats">
+            <div class="stat-card">
+                <h3>Total Tests</h3>
+                <p>{{ progress|length }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Passed Tests</h3>
+                <p>{{ progress|selectattr('passed', 'equalto', true)|list|length }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Average Score</h3>
+                <p>{{ (progress|map(attribute='score')|sum / progress|length)|round(1) if progress else 0 }}%</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress by Topic -->
+    {% if topics %}
+        {% for topic in topics|sort(attribute='name') %}
+        {% set topic_progress = progress_by_topic[topic.id] %}
+        <div class="topic-card" data-topic-id="{{ topic.id }}">
+            <div class="topic-header">
+                <h3>{{ topic.name }}</h3>
+                <div class="topic-stats">
+                    <div class="topic-stat">
+                        <i class="bi bi-check-circle"></i> 
+                        {{ topic_progress|selectattr('passed', 'equalto', true)|list|length }} passed
+                    </div>
+                    <div class="topic-stat">
+                        <i class="bi bi-clock-history"></i> 
+                        {{ topic_progress|length }} attempts
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if topic_progress %}
+                <div class="table-responsive">
+                    <table class="table table-hover progress-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Score</th>
+                                <th>Status</th>
+                                <th>Attempts</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in topic_progress|sort(attribute='last_attempt', reverse=true) %}
+                            <tr>
+                                <td>{{ result.last_attempt.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar {{ 'progress-bar-success' if result.passed else 'progress-bar-danger' }}"
+                                             data-score="{{ result.score }}">
+                                            {{ result.score }}%
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if result.passed %}
+                                    <span class="badge bg-success status-badge">Passed</span>
+                                    {% else %}
+                                    <span class="badge bg-danger status-badge">Failed</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ result.attempts }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-journal-text"></i>
+                    <h4>No attempts yet</h4>
+                    <p>You haven't taken any tests for this topic yet.</p>
+                    <a href="{{ url_for('learn', topic_id=topic.id) }}" class="btn btn-start-learning">
+                        Start Learning
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <i class="bi bi-journal-text"></i>
+            <h4>No topics available</h4>
+            <p>There are no vocabulary topics available yet.</p>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set progress bar widths
+    document.querySelectorAll('.progress-bar').forEach(bar => {
+        const score = bar.getAttribute('data-score');
+        bar.style.width = `${score}%`;
+    });
+
+    const topicFilter = document.getElementById('topicFilter');
+    const applyFilterBtn = document.getElementById('applyFilter');
+    const topicCards = document.querySelectorAll('.topic-card');
+    
+    // Show all topics initially
+    topicCards.forEach(card => card.classList.add('show'));
+    
+    // Apply filter when button is clicked
+    applyFilterBtn.addEventListener('click', function() {
+        const selectedTopicId = topicFilter.value;
+        
+        topicCards.forEach(card => {
+            if (selectedTopicId === 'all') {
+                card.classList.add('show');
+            } else {
+                const topicId = card.getAttribute('data-topic-id');
+                if (topicId === selectedTopicId) {
+                    card.classList.add('show');
+                } else {
+                    card.classList.remove('show');
+                }
+            }
+        });
+        
+        // Update summary statistics based on filtered topics
+        updateSummaryStats(selectedTopicId);
+    });
+    
+    function updateSummaryStats(selectedTopicId) {
+        let totalTests = 0;
+        let passedTests = 0;
+        let totalScore = 0;
+        
+        topicCards.forEach(card => {
+            if (selectedTopicId === 'all' || card.getAttribute('data-topic-id') === selectedTopicId) {
+                const attempts = parseInt(card.querySelector('.topic-stat:nth-child(2)').textContent.match(/\d+/)[0]);
+                const passed = parseInt(card.querySelector('.topic-stat:nth-child(1)').textContent.match(/\d+/)[0]);
+                
+                totalTests += attempts;
+                passedTests += passed;
+                
+                // Calculate average score from visible rows
+                const scores = Array.from(card.querySelectorAll('.progress-bar')).map(bar => 
+                    parseInt(bar.getAttribute('data-score'))
+                );
+                totalScore += scores.reduce((a, b) => a + b, 0);
+            }
+        });
+        
+        // Update summary cards
+        document.querySelector('.stat-card:nth-child(1) p').textContent = totalTests;
+        document.querySelector('.stat-card:nth-child(2) p').textContent = passedTests;
+        document.querySelector('.stat-card:nth-child(3) p').textContent = 
+            totalTests > 0 ? `${(totalScore / totalTests).toFixed(1)}%` : '0%';
+    }
+});
+</script>
+{% endblock %} 
