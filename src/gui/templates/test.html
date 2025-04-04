@@ -4,184 +4,447 @@
 
 {% block content %}
 <style>
-/* Navigation Bar Styles */
-.navbar {
-    background: linear-gradient(135deg, #4e54c8, #8f94fb) !important;
-    padding: 1rem 2rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
+    body {
+        background: linear-gradient(135deg, #f6f9fc, #eef2f7);
+        min-height: 100vh;
+    }
 
-.navbar-brand {
-    color: white !important;
-    font-size: 1.5rem;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-}
+    .test-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem 0;
+    }
+    
+    .test-header {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(78, 84, 200, 0.2);
+        color: white;
+    }
+    
+    .test-header h1 {
+        color: white;
+        margin-bottom: 0.5rem;
+        font-size: 2rem;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
 
-.nav-link {
-    color: rgba(255,255,255,0.9) !important;
-    font-weight: 500;
-    padding: 0.5rem 1rem !important;
-    margin: 0 0.2rem;
-    border-radius: 5px;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.nav-link:hover {
-    color: white !important;
-    background: rgba(255,255,255,0.1);
-    transform: translateY(-1px);
-}
-
-.navbar-nav {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-/* Add animation for active link */
-.nav-link.active {
-    background: rgba(255,255,255,0.2);
-    color: white !important;
-}
-
-/* Logout button special styling */
-.nav-link[href*="logout"] {
-    border: 1px solid rgba(255,255,255,0.3);
-    padding: 0.5rem 1.5rem !important;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.nav-link[href*="logout"] i {
-    font-size: 1.1em;
-    margin-right: 0.2rem;
-}
-
-.nav-link[href*="logout"]:hover {
-    background: rgba(255,255,255,0.2);
-    border-color: transparent;
-}
-
-@media (max-width: 768px) {
-    .navbar {
+    .test-header .lead {
+        color: rgba(255,255,255,0.9);
+    }
+    
+    .test-info {
+        display: flex;
+        gap: 2rem;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: rgba(255,255,255,0.9);
+    }
+    
+    .info-item i {
+        font-size: 1.2rem;
+        color: rgba(255,255,255,0.95);
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .progress-tracker {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        border: 1px solid rgba(78, 84, 200, 0.1);
+    }
+    
+    .progress-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        color: #4e54c8;
+        font-weight: 500;
+    }
+    
+    .progress-bar-container {
+        height: 10px;
+        background-color: #f0f0f0;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #4e54c8, #8f94fb);
+        box-shadow: 0 2px 4px rgba(78, 84, 200, 0.3);
+        transition: width 0.3s ease;
+    }
+    
+    .question-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(78, 84, 200, 0.1);
+    }
+    
+    .question-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(78, 84, 200, 0.15);
+    }
+    
+    .question-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid rgba(78, 84, 200, 0.1);
+    }
+    
+    .question-number {
+        font-size: 0.9rem;
+        color: #4e54c8;
+        font-weight: 600;
+        background: rgba(78, 84, 200, 0.1);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+    }
+    
+    .question-text {
+        font-size: 1.2rem;
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+        font-weight: 500;
+        line-height: 1.6;
+    }
+    
+    .options-grid {
+        display: grid;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .option-button {
+        background: #f8f9fa;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
         padding: 1rem;
+        text-align: left;
+        font-size: 1rem;
+        color: #2c3e50;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
     }
     
-    .navbar-nav {
-        margin-top: 1rem;
-        gap: 0.8rem;
+    .option-button:hover {
+        background: rgba(78, 84, 200, 0.05);
+        border-color: #4e54c8;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(78, 84, 200, 0.1);
+    }
+
+    .option-button input[type="radio"]:checked + span {
+        color: #4e54c8;
+        font-weight: 500;
     }
     
-    .nav-link {
-        text-align: center;
-        justify-content: center;
+    .option-button input[type="radio"] {
+        width: 20px;
+        height: 20px;
+        margin: 0;
+        accent-color: #4e54c8;
     }
-}
+    
+    .test-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    
+    .btn-outline-secondary {
+        color: #4e54c8;
+        border-color: #4e54c8;
+        background: transparent;
+        transition: all 0.3s ease;
+    }
 
-.progress-bar-container {
-    height: 25px;
-    background-color: #f0f0f0;
-    border-radius: 5px;
-    overflow: hidden;
-    margin: 0;
-}
+    .btn-outline-secondary:hover {
+        background: rgba(78, 84, 200, 0.1);
+        color: #4e54c8;
+        transform: translateY(-2px);
+    }
 
-.progress-bar {
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
-    transition: width 0.5s ease;
-}
+    .btn-primary {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        border: none;
+        transition: all 0.3s ease;
+    }
 
-.progress-bar-success {
-    background: linear-gradient(90deg, #28a745, #34ce57);
-}
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(78, 84, 200, 0.3);
+    }
+    
+    .submit-test {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: 500;
+        flex: 1;
+        max-width: 200px;
+        transition: all 0.3s ease;
+    }
+    
+    .submit-test:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(78, 84, 200, 0.3);
+    }
+    
+    .submit-test:disabled {
+        background: #e9ecef;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
 
-.progress-bar-danger {
-    background: linear-gradient(90deg, #dc3545, #e4606d);
-}
+    /* Modal customization */
+    .modal-content {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        color: white;
+        border-radius: 15px 15px 0 0;
+        border-bottom: none;
+    }
+
+    .modal-title {
+        font-weight: 600;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .btn-close {
+        filter: brightness(0) invert(1);
+    }
+    
+    @media (max-width: 768px) {
+        .test-container {
+            padding: 1rem;
+        }
+        
+        .test-header {
+            padding: 1.5rem;
+        }
+        
+        .test-info {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .options-grid {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 
-<div class="row">
-    <div class="col-md-12 mb-4">
-        <h2>Vocabulary Test</h2>
-        <p class="lead">{{ topic.name }}</p>
-        <p>Answer the following questions. You need to score at least 90% to pass.</p>
-        <div class="alert alert-info">
-            Total Questions: {{ tests|length }}
+<div class="test-container">
+    <div class="test-header">
+        <h1>{{ topic.name }}</h1>
+        <p class="lead">Test your knowledge of the vocabulary in this topic</p>
+        <div class="test-info">
+            <div class="info-item">
+                <i class="bi bi-question-circle"></i>
+                <span>{{ tests|length }} Questions</span>
+            </div>
+            <div class="info-item">
+                <i class="bi bi-trophy"></i>
+                <span>Pass Score: 90%</span>
+            </div>
+            <div class="info-item">
+                <i class="bi bi-clock"></i>
+                <span>No Time Limit</span>
+            </div>
         </div>
     </div>
-</div>
 
-<div class="row">
-    <div class="col-md-8 offset-md-2">
-        <form id="test-form" method="POST">
-            {% for test in tests %}
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h5 class="card-title">Question {{ loop.index }} of {{ tests|length }}</h5>
-                    <p class="card-text">{{ test.question }}</p>
-                    <div class="options">
-                        {% for option in test.options %}
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="answer_{{ test.id }}" 
-                                   id="option_{{ loop.index }}" value="{{ option }}" required>
-                            <label class="form-check-label" for="option_{{ loop.index }}">
-                                {{ option }}
-                            </label>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-            <div class="d-grid">
-                <button type="submit" class="btn btn-primary">Submit Test</button>
-            </div>
-        </form>
+    <div class="progress-tracker">
+        <div class="progress-info">
+            <span class="questions-completed">Question <span id="currentQuestion">1</span> of {{ tests|length }}</span>
+            <span class="completion-status" id="completionStatus">0% Complete</span>
+        </div>
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+        </div>
     </div>
+
+    <form id="test-form" method="POST">
+        {% for test in tests %}
+        <div class="question-card" id="question-{{ loop.index }}" {% if not loop.first %}style="display: none;"{% endif %}>
+            <div class="question-header">
+                <span class="question-number">Question {{ loop.index }}</span>
+            </div>
+            <div class="question-text">{{ test.question }}</div>
+            <div class="options-grid">
+                {% for option in test.options %}
+                <label class="option-button">
+                    <input type="radio" name="answer_{{ test.id }}" value="{{ option }}" required>
+                    <span>{{ option }}</span>
+                </label>
+                {% endfor %}
+            </div>
+            <div class="test-actions">
+                {% if not loop.first %}
+                <button type="button" class="btn btn-outline-secondary prev-question" 
+                        onclick="showQuestion({{ loop.index - 1 }})">Previous</button>
+                {% endif %}
+                {% if not loop.last %}
+                <button type="button" class="btn btn-primary next-question" 
+                        onclick="showQuestion({{ loop.index + 1 }})">Next</button>
+                {% else %}
+                <button type="submit" class="submit-test" id="submitTest" disabled>Submit Test</button>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </form>
 </div>
 
 <script>
-document.getElementById('test-form').addEventListener('submit', function(e) {
-    e.preventDefault();
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('test-form');
+    const submitButton = document.getElementById('submitTest');
+    const totalQuestions = {{ tests|length }};
+    const progressBar = document.getElementById('progressBar');
+    const currentQuestionSpan = document.getElementById('currentQuestion');
+    const completionStatus = document.getElementById('completionStatus');
+    let answeredQuestions = 0;
     
-    const formData = new FormData(this);
-    const answers = {};
-    
-    for (let [key, value] of formData.entries()) {
-        if (key.startsWith('answer_')) {
-            const testId = key.split('_')[1];
-            answers[testId] = value;
-        }
+    // Function to update progress
+    function updateProgress() {
+        const progress = (answeredQuestions / totalQuestions) * 100;
+        progressBar.style.width = progress + '%';
+        completionStatus.textContent = Math.round(progress) + '% Complete';
+        
+        // Enable submit button if all questions are answered
+        submitButton.disabled = answeredQuestions < totalQuestions;
     }
     
-    fetch(window.location.href, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(answers)
-    })
-    .then(response => response.json())
-    .then(data => {
-        const message = `Your score: ${data.score.toFixed(1)}%\n${data.passed ? 'Congratulations! You passed!' : 'Keep practicing!'}`;
-        alert(message);
-        // Redirect to history page after test completion
-        window.location.href = '/history';
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while submitting your test. Please try again.');
+    // Add change event listeners to all radio buttons
+    document.querySelectorAll('input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const questionCard = this.closest('.question-card');
+            const questionInputs = questionCard.querySelectorAll('input[type="radio"]');
+            const wasAnswered = Array.from(questionInputs).some(input => input.checked);
+            
+            if (!wasAnswered) answeredQuestions++;
+            updateProgress();
+            
+            // Auto-advance to next question after selection
+            const nextButton = questionCard.querySelector('.next-question');
+            if (nextButton) {
+                setTimeout(() => nextButton.click(), 500);
+            }
+        });
+    });
+    
+    // Handle form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const answers = {};
+        
+        for (let [key, value] of formData.entries()) {
+            if (key.startsWith('answer_')) {
+                const testId = key.split('_')[1];
+                answers[testId] = value;
+            }
+        }
+        
+        fetch(window.location.href, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(answers)
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Create a custom result modal
+            const modal = document.createElement('div');
+            modal.className = 'modal fade';
+            modal.innerHTML = `
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Test Results</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <h2 class="mb-4">${data.score.toFixed(1)}%</h2>
+                            <div class="progress mb-4" style="height: 20px;">
+                                <div class="progress-bar ${data.passed ? 'bg-success' : 'bg-danger'}" 
+                                     style="width: ${data.score}%"></div>
+                            </div>
+                            <p class="h4 mb-3">${data.passed ? 'Congratulations! You passed!' : 'Keep practicing!'}</p>
+                            <p class="text-muted">Required score: 90%</p>
+                        </div>
+                        <div class="modal-footer">
+                            <a href="/history" class="btn btn-primary">View History</a>
+                            <a href="/topics" class="btn btn-secondary">Back to Topics</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            const bsModal = new bootstrap.Modal(modal);
+            bsModal.show();
+            
+            modal.addEventListener('hidden.bs.modal', function() {
+                window.location.href = '/history';
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while submitting your test. Please try again.');
+        });
     });
 });
+
+// Function to show a specific question
+function showQuestion(index) {
+    document.querySelectorAll('.question-card').forEach(card => {
+        card.style.display = 'none';
+    });
+    document.getElementById(`question-${index}`).style.display = 'block';
+    document.getElementById('currentQuestion').textContent = index;
+    
+    // Scroll to top of the question
+    window.scrollTo({
+        top: document.querySelector('.test-container').offsetTop,
+        behavior: 'smooth'
+    });
+}
 </script>
 {% endblock %} 

@@ -61,15 +61,10 @@
         margin-bottom: 1.5rem;
         box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         transition: transform 0.3s ease;
-        display: none;
     }
     
     .topic-card:hover {
         transform: translateY(-5px);
-    }
-    
-    .topic-card.show {
-        display: block;
     }
     
     .topic-header {
@@ -199,59 +194,82 @@
     
     .filter-section {
         background: #6c5ce7;
+        border-radius: 10px;
         padding: 1.5rem;
-        border-radius: 15px;
         margin-bottom: 2rem;
-        box-shadow: 0 2px 10px rgba(108, 92, 231, 0.2);
-        display: flex;
-        align-items: flex-end;
-        gap: 1rem;
     }
     
-    .filter-section label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 500;
+    .filter-section h2 {
         color: white;
-        font-size: 1.2rem;
+        font-size: 1.5rem;
+        margin: 0;
+        margin-bottom: 1rem;
     }
     
-    .filter-group {
+    .filter-controls {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+    
+    .topic-select {
         flex: 1;
     }
     
-    .filter-section select {
+    .topic-select select {
         width: 100%;
-        padding: 0.75rem;
+        padding: 0.8rem;
         border: none;
         border-radius: 8px;
         font-size: 1rem;
-        color: #495057;
         background-color: white;
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236c757d' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: calc(100% - 1rem) center;
+        padding-right: 2.5rem;
     }
     
-    .filter-section select:focus {
+    .topic-select select:focus {
         outline: none;
-        box-shadow: 0 2px 10px rgba(255, 255, 255, 0.3);
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
     }
     
-    .apply-filter-btn {
+    .apply-filter {
         background: white;
         color: #6c5ce7;
         border: none;
-        padding: 0.75rem 1.5rem;
+        padding: 0.8rem 1.5rem;
         border-radius: 8px;
         font-weight: 500;
         cursor: pointer;
         transition: all 0.3s ease;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
     
-    .apply-filter-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    .apply-filter:hover {
+        background: #f8f9fa;
+        transform: translateY(-1px);
+    }
+    
+    @media (max-width: 768px) {
+        .filter-section {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .filter-controls {
+            flex-direction: column;
+        }
+        
+        .topic-select {
+            max-width: 100%;
+        }
+    }
+    
+    .topic-card.hidden {
+        display: none;
     }
 </style>
 
@@ -261,24 +279,23 @@
         <p class="lead">Track your progress and achievements across all topics</p>
     </div>
 
-    <!-- Topic Filter -->
     <div class="filter-section">
-        <div class="filter-group">
-            <label for="topicFilter">
-                Filter by Topic
-            </label>
-            <select id="topicFilter" class="form-select">
-                <option value="all">All Topics</option>
-                {% for topic in topics|sort(attribute='name') %}
-                <option value="{{ topic.id }}">{{ topic.name }}</option>
-                {% endfor %}
-            </select>
+        <h2>Filter by Topic</h2>
+        <div class="filter-controls">
+            <div class="topic-select">
+                <select id="topicFilter">
+                    <option value="all">All Topics</option>
+                    {% for topic in topics %}
+                    <option value="{{ topic.id }}">{{ topic.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button class="apply-filter" onclick="applyFilter()">Apply Filter</button>
         </div>
-        <button class="apply-filter-btn" id="applyFilter">Apply Filter</button>
     </div>
 
     <!-- Progress Summary -->
-    <div class="progress-summary">
+    <div class="progress-summary" id="progressSummary">
         <h2>Overall Progress</h2>
         <div class="progress-stats">
             <div class="stat-card">
@@ -332,8 +349,8 @@
                                 <td>{{ result.last_attempt.strftime('%Y-%m-%d %H:%M') }}</td>
                                 <td>
                                     <div class="progress-bar-container">
-                                        <div class="progress-bar {{ 'progress-bar-success' if result.passed else 'progress-bar-danger' }}"
-                                             data-score="{{ result.score }}">
+                                        <div class="progress-bar {% if result.passed %}progress-bar-success{% else %}progress-bar-danger{% endif %}"
+                                             style="width: {{ result.score }}%">
                                             {{ result.score }}%
                                         </div>
                                     </div>
@@ -375,67 +392,53 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Set progress bar widths
-    document.querySelectorAll('.progress-bar').forEach(bar => {
-        const score = bar.getAttribute('data-score');
-        bar.style.width = `${score}%`;
-    });
-
     const topicFilter = document.getElementById('topicFilter');
-    const applyFilterBtn = document.getElementById('applyFilter');
     const topicCards = document.querySelectorAll('.topic-card');
+    const progressSummary = document.getElementById('progressSummary');
     
-    // Show all topics initially
-    topicCards.forEach(card => card.classList.add('show'));
-    
-    // Apply filter when button is clicked
-    applyFilterBtn.addEventListener('click', function() {
-        const selectedTopicId = topicFilter.value;
+    window.applyFilter = function() {
+        const selectedValue = topicFilter.value;
+        let selectedTopicName = topicFilter.options[topicFilter.selectedIndex].text;
         
+        // Update page header based on selection
+        document.querySelector('.page-header h1').textContent = 
+            selectedValue === 'all' ? 'Learning History' : `${selectedTopicName} - Learning History`;
+        
+        // Show/hide progress summary
+        progressSummary.style.display = selectedValue === 'all' ? 'block' : 'none';
+        
+        // Filter topic cards
         topicCards.forEach(card => {
-            if (selectedTopicId === 'all') {
-                card.classList.add('show');
+            const topicId = card.getAttribute('data-topic-id');
+            
+            if (selectedValue === 'all') {
+                card.classList.remove('hidden');
             } else {
-                const topicId = card.getAttribute('data-topic-id');
-                if (topicId === selectedTopicId) {
-                    card.classList.add('show');
+                if (String(topicId) === String(selectedValue)) {
+                    card.classList.remove('hidden');
+                    // If this is the selected topic and has a start learning button, focus on it
+                    const startButton = card.querySelector('.btn-start-learning');
+                    if (startButton) {
+                        startButton.focus();
+                    }
                 } else {
-                    card.classList.remove('show');
+                    card.classList.add('hidden');
                 }
             }
         });
         
-        // Update summary statistics based on filtered topics
-        updateSummaryStats(selectedTopicId);
-    });
-    
-    function updateSummaryStats(selectedTopicId) {
-        let totalTests = 0;
-        let passedTests = 0;
-        let totalScore = 0;
-        
-        topicCards.forEach(card => {
-            if (selectedTopicId === 'all' || card.getAttribute('data-topic-id') === selectedTopicId) {
-                const attempts = parseInt(card.querySelector('.topic-stat:nth-child(2)').textContent.match(/\d+/)[0]);
-                const passed = parseInt(card.querySelector('.topic-stat:nth-child(1)').textContent.match(/\d+/)[0]);
-                
-                totalTests += attempts;
-                passedTests += passed;
-                
-                // Calculate average score from visible rows
-                const scores = Array.from(card.querySelectorAll('.progress-bar')).map(bar => 
-                    parseInt(bar.getAttribute('data-score'))
-                );
-                totalScore += scores.reduce((a, b) => a + b, 0);
+        // Scroll to the selected topic card if it exists
+        if (selectedValue !== 'all') {
+            const selectedCard = document.querySelector(`.topic-card[data-topic-id="${selectedValue}"]:not(.hidden)`);
+            if (selectedCard) {
+                selectedCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
-        });
-        
-        // Update summary cards
-        document.querySelector('.stat-card:nth-child(1) p').textContent = totalTests;
-        document.querySelector('.stat-card:nth-child(2) p').textContent = passedTests;
-        document.querySelector('.stat-card:nth-child(3) p').textContent = 
-            totalTests > 0 ? `${(totalScore / totalTests).toFixed(1)}%` : '0%';
+        }
     }
+    
+    // Remove the automatic filter on change
+    // Only filter when the button is clicked
+    topicFilter.removeEventListener('change', window.applyFilter);
 });
 </script>
 {% endblock %} 
